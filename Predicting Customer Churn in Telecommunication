@@ -1,0 +1,100 @@
+Problem Statement:
+Predicting Customer Churn in Telecommunication
+
+
+
+Use metrics like precision, recall, and F1-score to assess model performance, as they offer insights beyond accuracy.
+Analyzing feature importance helps stakeholders understand the drivers of churn.
+ Recommendations and Deployment
+Provide recommendations based on feature importance and prepare a report.
+
+Example Insights:
+
+Customer Tenure: High churn rates are observed among new customers. Consider loyalty programs for new users.
+Monthly Charges: Higher charges are linked to higher churn, suggesting possible price sensitivity.
+Contract Type: Month-to-month contracts have higher churn, so incentivizing longer contracts might reduce churn.
+Presentation Content:
+
+Outline objectives, data insights, and the methodology used.
+Discuss model outcomes, key drivers of churn, and actionable recommendations.
+Ethical Considerations
+When using predictive models in customer retention:
+
+Privacy: Ensure data used for predictions respects customer privacy and complies with regulations.
+Bias and Fairness: Regularly audit models for fairness, especially regarding demographic variables, to avoid discriminatory patterns.
+By following these steps and code samples, you’ll have a well-rounded, data-driven approach to predicting and addressing customer churn in telecommunications.
+
+
+
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+
+
+df = pd.read_csv('customer_churn.csv')
+
+print(df.info())
+print(df.describe())
+print(df['churn'].value_counts())  # Check churn distribution
+
+df = df.fillna(df.median())  # Or use specific methods based on data exploration
+
+Q1 = df.quantile(0.25)
+Q3 = df.quantile(0.75)
+IQR = Q3 - Q1
+df = df[~((df < (Q1 - 1.5 * IQR)) | (df > (Q3 + 1.5 * IQR))).any(axis=1)]
+
+df = pd.get_dummies(df, drop_first=True)
+
+X = df.drop('churn', axis=1)
+y = df['churn']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.model_selection import GridSearchCV
+
+models = {
+    "Logistic Regression": LogisticRegression(),
+    "Random Forest": RandomForestClassifier(),
+    "SVM": SVC()
+}
+
+param_grid_rf = {
+    'n_estimators': [50, 100, 200],
+    'max_depth': [None, 10, 20, 30]
+}
+grid_rf = GridSearchCV(RandomForestClassifier(), param_grid_rf, cv=5, scoring='accuracy')
+grid_rf.fit(X_train, y_train)
+
+
+print(f"Best Parameters for Random Forest: {grid_rf.best_params_}")
+print(f"Best Score for Random Forest: {grid_rf.best_score_}")
+
+from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix, classification_report
+
+
+y_pred_rf = grid_rf.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, y_pred_rf))
+print("Precision:", precision_score(y_test, y_pred_rf))
+print("Recall:", recall_score(y_test, y_pred_rf))
+print("Classification Report:\n", classification_report(y_test, y_pred_rf))
+
+feature_importance = grid_rf.best_estimator_.feature_importances_
+features = X.columns
+feature_df = pd.DataFrame({'Feature': features, 'Importance': feature_importance}).sort_values(by='Importance', ascending=False)
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Importance', y='Feature', data=feature_df.head(10))
+plt.title('Top 10 Feature Importances for Churn Prediction')
+plt.show()
+
+
+
+
