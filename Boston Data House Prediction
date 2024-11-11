@@ -1,0 +1,47 @@
+import pandas as pd 
+import numpy as np 
+import matplotlib.pyplot as plt 
+import seaborn as sns 
+from statsmodels.graphics.gofplots import ProbPlot  
+from statsmodels.formula.api import ols 
+import statsmodels.api as sm 
+from sklearn.linear_model import LinearRegression 
+from sklearn.model_selection import train_test_split 
+from sklearn.preprocessing import MinMaxScaler 
+import warnings 
+warnings.filterwarnings("ignore") 
+boston = pd.read_csv("/content/Boston.csv") 
+data = pd.DataFrame(boston) 
+data.head()
+data['PRICE'] = boston.MEDV 
+data.head() 
+df = pd.read_csv("Boston.csv") 
+df.head() 
+df.info()
+df.describe().T 
+for i in df.columns: 
+plt.figure(figsize = (7, 4))
+sns.histplot(data = df, x = i, kde = True) 
+plt.show()
+df['MEDV_log'] = np.log(df['MEDV']) 
+sns.histplot(data = df, x = 'MEDV_log', kde = True) 
+plt.figure(figsize = (12, 8))
+cmap = sns.diverging_palette(230, 20, as_cmap = True) 
+sns.heatmap(df.corr(), annot = True, fmt = '.2f', cmap = cmap) 
+plt.show() 
+
+plt.figure(figsize = (6, 6)) 
+sns.scatterplot(x = 'AGE', y = 'DIS', data = df) 
+plt.show()
+df1 = df[df['TAX'] < 600] 
+from scipy.stats import pearsonr 
+print('The correlation between TAX and RAD is', pearsonr(df1['TAX'], df1['RAD'])[0]) The correlation between TAX and RAD is 0.24975731331429196  
+sns.scatterplot(x = 'INDUS', y = 'TAX', data = df) 
+plt.show()
+
+
+
+
+
+
+
