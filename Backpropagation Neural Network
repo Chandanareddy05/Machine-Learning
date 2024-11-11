@@ -1,0 +1,25 @@
+import numpy as np
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+data = load_iris()
+
+# Get features and target
+X=data.data
+y=data.target
+y = pd.get_dummies(y).values
+y[:3]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=20, random_state=4)
+learning_rate = 0.1
+iterations = 5000
+N = y_train.size
+input_size = 4
+hidden_size = 2 
+output_size = 3  
+results = pd.DataFrame(columns=["mse", "accuracy"])
+np.random.seed(10)
+W1 = np.random.normal(scale=0.5, size=(input_size, hidden_size))   
+W2 = np.random.normal(scale=0.5, size=(hidden_size , output_size)) 
+results.mse.plot(title="Mean Squared Error")
+results.accuracy.plot(title="Accuracy")
